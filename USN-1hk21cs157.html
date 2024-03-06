@@ -1,0 +1,154 @@
+glass.html
+
+<!DOCTYPE html>
+<html>
+<body style="background-color:rgb(71, 134, 150);">
+
+<h1> <center><b><i><U><marquee width="70%" direction="right" height="40px" bgcolor="yellow"<marquee> GLASS IDENTIFICATION </marquee></U> </i> </b></center></h1>
+    <form method="POST">
+        {% csrf_token %}
+       <center>
+        <table style="background-color:rgb(153, 176, 219)">
+
+            <tr>
+                    <td>RI</td>
+                <td> <input type="text"  name="textRI"> </td>   
+            </tr>
+            <tr>
+                <td>Na</td>
+                <td> <input type="text"  name="textNa"> </td>   
+            </tr>
+            <tr>
+                <td>Mg</td>
+                <td> <input type="text"  name="textMg"> </td>   
+            </tr>
+            <tr>
+                <td>Al</td>
+                <td> <input type="text"  name="textAl"> </td>   
+            </tr>
+            <tr>
+                <td>Si</td>
+                <td> <input type="text"  name="textSi"> </td>   
+            </tr>
+            <tr>
+                <td>K</td>
+                <td> <input type="text"  name="textK"> </td>   
+            </tr>
+            <tr>
+                <td>Ca</td>
+                <td> <input type="text"  name="textCa"> </td>   
+            </tr>
+            <tr>
+                <td>Ba</td>
+                <td> <input type="text"  name="textBa"> </td>   
+            </tr>
+            <tr>
+                <td>Fe</td>
+                <td> <input type="text"  name="textFe"> </td>   
+            </tr>
+        </table>
+        </center>
+
+      <center>
+            <tr>
+                <td>
+                     <button type="SUBMIT" class="btn btn-danger" name="buttonpredict"><h2>  Predict  </h2></button>
+                </td>
+            </tr>
+        </center>
+            <tr>
+                
+                <td>
+                    <center> <b>    {{ res }}        </b> </center>
+                </td>
+            </tr>
+        
+    
+
+
+    <br><br><br>
+    <footer>
+       <center> <b><p>&copy; << By->>>>>  Sneha K C  ||  1HK21CS157     ||     Hkbk College of engineering   >>  </p> </b></center>
+    </footer>
+        </form> 
+      </body>
+    </html>
+
+
+
+VIEWS.PY
+
+def glass(request):
+    if(request.method=="POST"):
+        data=request.POST
+
+
+        RI=data.get('textRI')
+        Na=data.get('textNa')
+        Mg=data.get('textMg')
+        Al=data.get('textAl')
+        Si=data.get('textSi')
+        K=data.get('textK')
+        Ca=data.get('textCa')
+        Ba=data.get('textBa')
+        Fe=data.get('textFe')
+        
+        if('buttonpredict' in request.POST):
+
+            import pandas as pd
+            from sklearn.model_selection import train_test_split
+            from sklearn.preprocessing import LabelEncoder
+            import matplotlib.pyplot as plt
+            from sklearn.naive_bayes import GaussianNB
+
+            path="C:\\Users\\DELL\\Documents\\45_Glassidentification\\glass.csv"
+            data=pd.read_csv(path)
+            #print(data)
+
+            #data['diagnosis']=data['diagnosis'].map({'M':1,'B':0})
+
+            inputs=data.drop(['Type'],'columns')
+            #print(input)
+            #la_diagnosis=LabelEncoder()
+            #data["diagnosis_n"]=la_diagnosis.fit_transform(data['diagnosis'])
+
+            output=data['Type']
+                    
+            x_train,x_test,y_train,y_test=train_test_split(inputs,output,train_size=0.8)
+            model=GaussianNB()
+            model.fit(x_train,y_train)
+            y_pred=model.predict(x_test)
+            #print(y_pred)
+            #res=model.predict(([[1.52101,13.64,4.49,1.1,71.78,0.06,8.75,0,0]]))
+            #print(res)
+
+            res=model.predict([[float(RI),float(Na),float(Mg),float(Al),float(Si),float(K),float(Ca),float(Ba),float(Fe)]])
+            print(res)
+
+            if res==102:
+                print("Glass Type is 1:Building Windows Floatprocessed")
+            elif res==103:
+                print ("Glass Type is 2:Building Windows Nonfloatprocessed")
+            elif res==104:
+                print ("Glass Type is 3:Vehicle Windows Floatprocessed")
+            elif res==105:
+                print ("Glass Type is 5:Containers")
+            elif res==107:
+                print ("Glass Type is 6:Tableware")
+            else:
+                print ("Glass Type is 7:Head Lamps")
+
+            return render(request,'glass.html',context={'res':res})
+    return render(request,'glass.html')
+
+URL.PY
+
+from django.contrib import admin
+from django.urls import path
+from basic.views import *
+
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    path("glass/",glass,name="glass"),
+    
+]
